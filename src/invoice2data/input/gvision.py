@@ -39,8 +39,8 @@ def to_text(path, bucket_name=None, language="fr"):
 
     path_dir, filename = os.path.split(path)
     result_blob_basename = filename.replace('.pdf', '').replace('.PDF', '')
-    result_blob_name = result_blob_basename + '/output-1-to-' + str(
-        PdfFileReader(open(path, "rb")).getNumPages()) + '.json'
+    reader = PdfFileReader(open(path, "rb"), strict=False)
+    result_blob_name = result_blob_basename + '/output-1-to-' + str(reader.getNumPages()) + '.json'
     result_blob_uri = 'gs://{}/{}/'.format(bucket_name, result_blob_basename)
     input_blob_uri = 'gs://{}/{}'.format(bucket_name, filename)
 
@@ -91,7 +91,7 @@ def to_text(path, bucket_name=None, language="fr"):
 
     anottext = ''
 
-    for x in range(PdfFileReader(open(path, "rb"), strict=False).getNumPages()):
+    for x in range(reader.getNumPages()):
         first_page_response = response.responses[x]
         if x == 0:
             anottext = first_page_response.full_text_annotation.text
