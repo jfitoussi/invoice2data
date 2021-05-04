@@ -91,7 +91,7 @@ def to_text(path, bucket_name=None, language="fr"):
 
     anottext = ''
 
-    for x in range(PdfFileReader(open(path, "rb")).getNumPages()):
+    for x in range(PdfFileReader(open(path, "rb"), strict=False).getNumPages()):
         first_page_response = response.responses[x]
         if x == 0:
             anottext = first_page_response.full_text_annotation.text
