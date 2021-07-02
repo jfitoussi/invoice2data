@@ -216,7 +216,7 @@ class InvoiceTemplate(OrderedDict):
             return output
         else:
             fields = list(set(output.keys()))
-            logger.error(
+            logger.warning(
                 'Unable to match all required fields. '
                 'The required fields are: {0}. '
                 'Output contains the following fields: {1}.'.format(required_fields, fields)

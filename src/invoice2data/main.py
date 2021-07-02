@@ -79,7 +79,7 @@ def extract_data(invoicefile, templates=None, input_module=pdftotext, with_extra
         templates = read_templates()
 
     # print(templates[0])
-    extracted_str = input_module.to_text(invoicefile).decode('utf-8')
+    extracted_str = input_module.to_text(invoicefile).decode('utf-8').replace(u'\xa0', u' ').replace(u"\xc2", " ")
 
     logger.debug('START pdftotext result ===========================')
     logger.debug(extracted_str)
@@ -95,7 +95,7 @@ def extract_data(invoicefile, templates=None, input_module=pdftotext, with_extra
                 return extract, extracted_str
             return extract
 
-    logger.error('No template for %s', invoicefile)
+    logger.warning('No template for %s', invoicefile)
     if with_extracted_str:
         return False, extracted_str
     return False
