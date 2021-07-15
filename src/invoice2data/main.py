@@ -79,7 +79,11 @@ def extract_data(invoicefile, templates=None, input_module=pdftotext, with_extra
         templates = read_templates()
 
     # print(templates[0])
-    extracted_str = input_module.to_text(invoicefile).decode('utf-8').replace(u'\xa0', u' ').replace(u"\xc2", " ")
+    extracted_str = input_module.to_text(invoicefile).decode('utf-8')
+    try:
+       extracted_str = extracted_str.replace(u'\xa0', u' ').replace(u"\xc2", " ")
+    except:
+        pass
 
     logger.debug('START pdftotext result ===========================')
     logger.debug(extracted_str)
