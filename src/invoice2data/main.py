@@ -19,7 +19,6 @@ from .output import to_csv
 from .output import to_json
 from .output import to_xml
 
-
 logger = logging.getLogger(__name__)
 
 input_mapping = {
@@ -81,7 +80,7 @@ def extract_data(invoicefile, templates=None, input_module=pdftotext, with_extra
     # print(templates[0])
     extracted_str = input_module.to_text(invoicefile).decode('utf-8')
     try:
-       extracted_str = extracted_str.replace(u'\xa0', u' ').replace(u"\xc2", " ")
+        extracted_str = extracted_str.replace(u'\xa0', u' ').replace(u"\xc2", " ")
     except:
         pass
 
@@ -90,19 +89,26 @@ def extract_data(invoicefile, templates=None, input_module=pdftotext, with_extra
     logger.debug('END pdftotext result =============================')
 
     logger.debug('Testing {} template files'.format(len(templates)))
-    for t in templates:
-        optimized_str = t.prepare_input(extracted_str)
-
-        if t.matches_input(optimized_str):
-            extract = t.extract(optimized_str)
-            if with_extracted_str:
-                return extract, extracted_str
-            return extract
+    data = data_from_template(templates, extracted_str)
+    if data:
+        if with_extracted_str:
+            return data, extracted_str
+        return data
 
     logger.warning('No template for %s', invoicefile)
     if with_extracted_str:
         return False, extracted_str
     return False
+
+
+def data_from_template(templates, extracted_str):
+    logger.debug('Testing {} template files'.format(len(templates)))
+    for t in templates:
+        optimized_str = t.prepare_input(extracted_str)
+
+        if t.matches_input(optimized_str):
+            return t.extract(optimized_str)
+    return None
 
 
 def create_parser():
