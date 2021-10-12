@@ -83,7 +83,7 @@ def read_templates(folder=None):
         for name in sorted(files):
             if name.endswith('.yml'):
                 with open(os.path.join(path, name), 'rb') as f:
-                    encoding = chardet.detect(f.read())['encoding']
+                    encoding = 'utf8'  # chardet.detect(f.read())['encoding']
                 with codecs.open(os.path.join(path, name), encoding=encoding) as template_file:
                     tpl = ordered_load(template_file.read())
                 tpl['template_name'] = name
