@@ -43,7 +43,7 @@ def extract(self, content, output):
             if match:
                 for field, value in match.groupdict().items():
                     # If a field name already exists, do not overwrite it
-                    if field in output:
+                    if not value or field in output:
                         continue
 
                     if field.startswith('date') or field.endswith('date'):
