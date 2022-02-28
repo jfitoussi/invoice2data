@@ -90,10 +90,13 @@ def extract_data(invoicefile, templates=None, input_module=pdftotext, with_extra
 
     logger.debug('Testing {} template files'.format(len(templates)))
     data = data_from_template(templates, extracted_str)
-    if data:
-        if with_extracted_str:
-            return data, extracted_str
-        return data
+    try:
+        if data:
+            if with_extracted_str:
+                return data, extracted_str
+            return data
+    except ValueError:
+        logger.warning("Exception in parsing", exc_info=True)
 
     logger.warning('No template for %s', invoicefile)
     if with_extracted_str:
