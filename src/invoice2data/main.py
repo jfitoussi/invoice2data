@@ -32,7 +32,7 @@ input_mapping = {
 output_mapping = {'csv': to_csv, 'json': to_json, 'xml': to_xml, 'none': None}
 
 
-def extract_data(invoicefile, templates=None, input_module=pdftotext, with_extracted_str=False):
+def extract_data(invoicefile, templates=None, input_module=pdftotext, with_extracted_str=False, **kwargs):
     """Extracts structured data from PDF/image invoices.
 
     This function uses the text extracted from a PDF file or image and
@@ -78,7 +78,7 @@ def extract_data(invoicefile, templates=None, input_module=pdftotext, with_extra
         templates = read_templates()
 
     # print(templates[0])
-    extracted_str = input_module.to_text(invoicefile).decode('utf-8')
+    extracted_str = input_module.to_text(invoicefile, kwargs).decode('utf-8')
     try:
         extracted_str = extracted_str.replace(u'\xa0', u' ').replace(u"\xc2", " ")
     except:
