@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-def to_text(path, bucket_name=None, language="fr"):
+def to_text(path, bucket_name=None, language="fr", **kwargs):
     """Sends PDF files to Google Cloud Vision for OCR.
 
     Before using invoice2data, make sure you have the auth json path set as

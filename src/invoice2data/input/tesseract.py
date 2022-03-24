@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
-def to_text(path):
+def to_text(path, **kwargs):
     """Wraps Tesseract OCR.
 
     Parameters
