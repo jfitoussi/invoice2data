@@ -214,7 +214,7 @@ class InvoiceTemplate(OrderedDict):
                 required_fields.append(v)
 
         if set(required_fields).issubset(output.keys()):
-            output['desc'] = output['desc'] or 'Invoice from %s' % (self['issuer'])
+            output['desc'] = output.get('desc') or 'Invoice from %s' % (self['issuer'])
             logger.debug(output)
             return output
         else:
