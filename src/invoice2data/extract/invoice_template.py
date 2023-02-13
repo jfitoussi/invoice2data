@@ -67,7 +67,10 @@ class InvoiceTemplate(OrderedDict):
 
         # Set issuer, if it doesn't exist.
         if "issuer" not in self.keys():
-            self["issuer"] = self["keywords"][0]
+            if "static_issuer" not in self['fields'].keys():
+                self["issuer"] = self["keywords"][0]
+            else:
+                self['issuer'] = self["fields"]["static_issuer"]
 
     def prepare_input(self, extracted_str: str) -> str:
         """
@@ -260,12 +263,12 @@ class InvoiceTemplate(OrderedDict):
                 required_fields.append(v)
 
         if set(required_fields).issubset(output.keys()):
-            output["desc"] = "Invoice from %s" % (self["issuer"])
+            output['desc'] = output.get('desc') or 'Invoice from %s' % (self['issuer'])
             logger.debug(output)
             return output
         else:
             fields = list(set(output.keys()))
-            logger.error(
+            logger.warning(
                 "Unable to match all required fields. "
                 "The required fields are: {0}. "
                 "Output contains the following fields: {1}.".format(

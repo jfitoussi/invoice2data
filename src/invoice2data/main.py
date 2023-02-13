@@ -22,7 +22,6 @@ from .output import to_csv
 from .output import to_json
 from .output import to_xml
 
-
 logger = logging.getLogger(__name__)
 
 input_mapping = {
@@ -37,7 +36,7 @@ input_mapping = {
 output_mapping = {"csv": to_csv, "json": to_json, "xml": to_xml, "none": None}
 
 
-def extract_data(invoicefile, templates=None, input_module=None):
+def extract_data(invoicefile, templates=None, input_module=pdftotext, with_extracted_str=False, **kwargs):
     """Extracts structured data from PDF/image invoices.
 
     This function uses the text extracted from a PDF file or image and
@@ -90,25 +89,40 @@ def extract_data(invoicefile, templates=None, input_module=None):
         else:
             input_module = pdftotext
 
-    extracted_str = input_module.to_text(invoicefile).decode("utf-8")
+    extracted_str = input_module.to_text(invoicefile, **kwargs).decode('utf-8')
+    try:
+        extracted_str = extracted_str.replace(u'\xa0', u' ').replace(u"\xc2", " ")
+    except:
+        pass
+
     if not isinstance(extracted_str, str) or not extracted_str.strip():
         logger.error("Failed to extract text from %s using %s", invoicefile, input_module.__name__)
         return False
 
-    logger.debug("START pdftotext result ===========================\n" + extracted_str)
-    logger.debug("END pdftotext result =============================")
+    logger.debug('Testing {} template files'.format(len(templates)))
+    data = data_from_template(templates, extracted_str, invoicefile, input_module)
+    try:
+        if data:
+            if with_extracted_str:
+                return data, extracted_str
+            return data
+    except ValueError:
+        logger.warning("Exception in parsing", exc_info=True)
 
+    logger.warning('No template for %s', invoicefile)
+    if with_extracted_str:
+        return False, extracted_str
+    return False
+
+
+def data_from_template(templates, extracted_str, invoicefile, input_module):
+    logger.debug('Testing {} template files'.format(len(templates)))
     for t in templates:
         optimized_str = t.prepare_input(extracted_str)
 
         if t.matches_input(optimized_str):
-            logger.info("Using %s template", t["template_name"])
-            # Call extract with entire text and the invoicefile path
-            # The path is used if an area is called as a field option
             return t.extract(optimized_str, invoicefile, input_module)
-
-    logger.error("No template for %s", invoicefile)
-    return False
+    return None
 
 
 def create_parser():

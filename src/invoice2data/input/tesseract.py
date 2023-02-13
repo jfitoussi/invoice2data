@@ -13,7 +13,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def to_text(path):
+def to_text(path, **kwargs):
     """Wraps Tesseract OCR with auto language model.
 
     Parameters

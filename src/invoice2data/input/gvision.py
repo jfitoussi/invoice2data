@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-def to_text(path, bucket_name="cloud-vision-84893", language="en"):
+def to_text(path, bucket_name=None, language="fr", **kwargs):
     """Sends PDF files to Google Cloud Vision for OCR.
 
     Before using invoice2data, make sure you have the auth json path set as
@@ -24,13 +24,26 @@ def to_text(path, bucket_name="cloud-vision-84893", language="en"):
     from google.cloud import vision
     from google.cloud import storage
     from google.protobuf import json_format
+    from PyPDF2 import PdfFileReader
 
     # Supported mime_types are: 'application/pdf' and 'image/tiff'
     mime_type = "application/pdf"
 
+    if bucket_name is None:
+        bucket_name = os.getenv('GOOGLE_CLOUD_BUCKET_NAME', None)
+
+        if bucket_name is None:
+            raise EnvironmentError(
+                'No Google Cloud Bucket name set.\n Set it as an input variable or as an environment variable named GOOGLE_CLOUD_BUCKET_NAME'
+            )
+
     path_dir, filename = os.path.split(path)
     result_blob_basename = filename.replace(".pdf", "").replace(".PDF", "")
-    result_blob_name = result_blob_basename + "/output-1-to-1.json"
+    with open(path, 'rb') as input:
+        reader = PdfFileReader(input, strict=False)
+        pages = reader.getNumPages()
+    print(pages)
+    result_blob_name = result_blob_basename + "/output-1-to-' + str(pages) + '.json"
     result_blob_uri = "gs://{}/{}/".format(bucket_name, result_blob_basename)
     input_blob_uri = "gs://{}/{}".format(bucket_name, filename)
 
@@ -45,7 +58,6 @@ def to_text(path, bucket_name="cloud-vision-84893", language="en"):
     # TODO: upload as hash, not filename
     result_blob = bucket.get_blob(result_blob_name)
     if result_blob is None:
-
         # How many pages should be grouped into each json output file.
         batch_size = 10
 
@@ -84,4 +96,13 @@ def to_text(path, bucket_name="cloud-vision-84893", language="en"):
     first_page_response = response.responses[0]
     annotation = first_page_response.full_text_annotation
 
-    return annotation.text.encode("utf-8")
+    anottext = ''
+
+    for x in range(pages):
+        first_page_response = response.responses[x]
+        if x == 0:
+            anottext = first_page_response.full_text_annotation.text
+        else:
+            anottext = anottext + first_page_response.full_text_annotation.text
+
+    return anottext.encode("utf-8")

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-def to_text(path: str, area_details: dict = None):
+def to_text(path: str, area_details: dict = None, **kwargs):
     """Wrapper around Poppler pdftotext.
 
     Parameters
